@@ -16,11 +16,11 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 ## Step-by-Step Task Tracker
 
 ### Phase 1: Data Preparation & Preprocessing
-- [ ] **Step 1.1:** Parse the `metadata.json` files for DFDC Parts 0-4.
-- [ ] **Step 1.2:** Write a balancing script to isolate an equal count of REAL and FAKE video IDs.
-- [ ] **Step 1.3:** Develop the OpenCV video ingestion pipeline to sample 5 to 10 frames per target video.
-- [ ] **Step 1.4:** Implement MTCNN for facial detection on the sampled frames.
-- [ ] **Step 1.5:** Apply the bounding box expansion logic (margin addition) and save the cropped faces as `.jpg` files organized into `train/REAL`, `train/FAKE`, `val/REAL`, and `val/FAKE` directories based on the Video-ID split rule.
+- [x] **Step 1.1:** Parse the `metadata.json` files for DFDC Parts 0-6.
+- [x] **Step 1.2:** Write a balancing script to isolate an equal count of REAL and FAKE video IDs.
+- [x] **Step 1.3:** Develop the OpenCV video ingestion pipeline to sample 15 frames per target video.
+- [x] **Step 1.4:** Implement MTCNN for facial detection on the sampled frames.
+- [x] **Step 1.5:** Apply the bounding box expansion logic (margin addition) and save the cropped faces as `.jpg` files organized into `train/REAL`, `train/FAKE`, `val/REAL`, and `val/FAKE` directories based on the Video-ID split rule.
 
 ### Phase 2: Model Setup & Hyperparameter Tuning
 - [ ] **Step 2.1:** Initialize the Hugging Face `transformers` library and load the pre-trained base ViT.
