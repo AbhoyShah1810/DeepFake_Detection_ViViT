@@ -1,0 +1,56 @@
+# Project Progression: Deepfake Detection using ViT
+
+This file tracks the current work done and leftover work for the Deepfake Detection project.
+
+---
+
+## Overall Progress Summary
+
+- **Total Tasks:** 17
+- **Completed:** 0
+- **In Progress:** 1
+- **Leftover (Not Started):** 16
+
+---
+
+## Step-by-Step Task Tracker
+
+### Phase 1: Data Preparation & Preprocessing
+- [ ] **Step 1.1:** Parse the `metadata.json` files for DFDC Parts 0-4.
+- [ ] **Step 1.2:** Write a balancing script to isolate an equal count of REAL and FAKE video IDs.
+- [ ] **Step 1.3:** Develop the OpenCV video ingestion pipeline to sample 5 to 10 frames per target video.
+- [ ] **Step 1.4:** Implement MTCNN for facial detection on the sampled frames.
+- [ ] **Step 1.5:** Apply the bounding box expansion logic (margin addition) and save the cropped faces as `.jpg` files organized into `train/REAL`, `train/FAKE`, `val/REAL`, and `val/FAKE` directories based on the Video-ID split rule.
+
+### Phase 2: Model Setup & Hyperparameter Tuning
+- [ ] **Step 2.1:** Initialize the Hugging Face `transformers` library and load the pre-trained base ViT.
+- [ ] **Step 2.2:** Construct the custom PyTorch `nn.Module` class, adding a Dropout layer and a final Linear layer (classification head) outputting a single binary logit.
+- [ ] **Step 2.3:** Configure the data loaders with image augmentations (RandomHorizontalFlip, ColorJitter) to improve generalization.
+- [ ] **Step 2.4:** Set up the PyTorch `mps` device mapping to utilize local hardware acceleration.
+- [ ] **Step 2.5:** Initialize the `AdamW` optimizer (learning rate: 3e-5, weight decay: 0.01) and configure a Linear Warmup with Cosine Decay scheduler.
+
+### Phase 3: Training & Evaluation
+- [ ] **Step 3.1:** Execute the training loop (3 to 5 epochs). Monitor training loss vs. validation loss continuously to prevent overfitting.
+- [ ] **Step 3.2:** Run inference on the holdout validation set.
+- [ ] **Step 3.3:** Calculate required evaluation metrics: Accuracy, Precision, Recall, F1-Score, and ROC-AUC.
+- [ ] **Step 3.4:** Save the optimal model weights to a `.pth` file.
+
+### Phase 4: Application Development
+- [ ] **Step 4.1:** Build the core Streamlit UI (titles, file uploaders, layout).
+- [ ] **Step 4.2:** Integrate the PyTorch inference loop into the Streamlit backend.
+- [ ] **Step 4.3:** Develop the logic for video uploads (extracting frames, running batched inference, aggregating the final confidence score).
+- [ ] **Step 4.4:** (Bonus) Implement Attention Rollout visualization to generate a heatmap indicating which parts of the face the ViT focused on to make its decision.
+
+### Phase 5: Final Packaging
+- [ ] **Step 5.1:** Clean and document the source code.
+- [ ] **Step 5.2:** Prepare the final Presentation and PDF Report mapping the workflow.
+- [ ] **Step 5.3:** Push all assets to a structured GitHub repository.
+
+---
+
+## Log of Completed Work
+
+### 2026-07-12
+- Started the project setup.
+- Created `requirements.txt` listing all necessary libraries.
+- Initiated installation of project dependencies (`torchvision`, `transformers`, `facenet-pytorch`, `streamlit`, `scikit-learn`, etc.).
