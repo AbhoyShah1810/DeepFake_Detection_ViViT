@@ -7,9 +7,9 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 ## Overall Progress Summary
 
 - **Total Tasks:** 21
-- **Completed:** 14
+- **Completed:** 18
 - **In Progress:** 0
-- **Leftover (Not Started):** 7
+- **Leftover (Not Started):** 3
 
 ---
 
@@ -35,11 +35,11 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 - [x] **Step 3.3:** Calculate required evaluation metrics: Accuracy, Precision, Recall, F1-Score, and ROC-AUC.
 - [x] **Step 3.4:** Save the optimal model weights to a `.pth` file.
 
-### Phase 4: Application Development
-- [ ] **Step 4.1:** Build the core Streamlit UI (titles, file uploaders, layout).
-- [ ] **Step 4.2:** Integrate the PyTorch inference loop into the Streamlit backend.
-- [ ] **Step 4.3:** Develop the logic for video uploads (extracting frames, running batched inference, aggregating the final confidence score).
-- [ ] **Step 4.4:** (Bonus) Implement Attention Rollout visualization to generate a heatmap indicating which parts of the face the ViT focused on to make its decision.
+### Phase 4: Application Development (Completed)
+- [x] **Step 4.1:** Build the core Streamlit UI (titles, file uploaders, layout).
+- [x] **Step 4.2:** Integrate the PyTorch inference loop into the Streamlit backend.
+- [x] **Step 4.3:** Develop the logic for video uploads (extracting frames, running batched inference, aggregating the final confidence score).
+- [x] **Step 4.4:** (Bonus) Implement Attention Rollout visualization to generate a heatmap indicating which parts of the face the ViT focused on to make its decision.
 
 ### Phase 5: Final Packaging
 - [ ] **Step 5.1:** Clean and document the source code.
