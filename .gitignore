@@ -1,9 +1,7 @@
-# Ignore everything by default
 /*
-
-# Except these files
 !.gitignore
 !dfd_ViT.ipynb
 !DeepFake_Report.md
 !progression.md
 !requirements.txt
+
