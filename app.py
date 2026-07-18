@@ -179,7 +179,10 @@ def load_models():
     
     # Create customized classifier architecture
     model = ViTDeepfakeClassifier(vit_base, dropout_rate=0.2)
-    
+    #################################################################################################################
+    #################################################################################################################
+    #################################################################################################################
+
     # Load our checkpoint weights
     checkpoint_path = "best_vit_deepfake.pth"
     weights_loaded = False
@@ -189,6 +192,9 @@ def load_models():
         
     model.to(device)
     model.eval()
+    #################################################################################################################
+    #################################################################################################################
+    #################################################################################################################
     
     # Initialize face detector on CPU (workaround for MPS pooling errors)
     detector = MTCNN(keep_all=True, device='cpu')
@@ -367,30 +373,38 @@ if uploaded_file is not None:
         with col1:
             st.image(image, caption="Uploaded Image Blueprint", use_container_width=True)
             
-        face = None
-        vis_image = None
-        prob = None
-        
-        with col2:
-            with st.spinner("Extracting region of interest (Face Isolation)..."):
-                face = get_largest_face(image)
-                
-            if face is not None:
-                inputs = processor(images=face, return_tensors="pt")
-                pixel_values = inputs['pixel_values'].to(device)
-                
-                with st.spinner("Analyzing artifacts & running self-attention mechanics..."):
-                    heatmap, logits = compute_attention_rollout(pixel_values)
+        cache_key = f"image_{uploaded_file.name}"
+        if cache_key not in st.session_state:
+            with col2:
+                with st.spinner("Extracting region of interest (Face Isolation)..."):
+                    face = get_largest_face(image)
                     
-                vis_image = overlay_heatmap(heatmap, face)
-                prob = torch.sigmoid(logits).item()
-                
+                if face is not None:
+                    inputs = processor(images=face, return_tensors="pt")
+                    pixel_values = inputs['pixel_values'].to(device)
+                    
+                    with st.spinner("Analyzing artifacts & running self-attention mechanics..."):
+                        heatmap, logits = compute_attention_rollout(pixel_values)
+                        
+                    vis_image = overlay_heatmap(heatmap, face)
+                    prob = torch.sigmoid(logits).item()
+                    st.session_state[cache_key] = {
+                        "face": face,
+                        "vis_image": vis_image,
+                        "prob": prob
+                    }
+                else:
+                    st.session_state[cache_key] = None
+                    
+        cached_data = st.session_state.get(cache_key)
+        if cached_data is not None:
+            face = cached_data["face"]
+            vis_image = cached_data["vis_image"]
+            prob = cached_data["prob"]
+            
+            with col2:
                 render_verdict_card(prob)
-            else:
-                st.error("No faces identified in the blueprint. Please provide a clear profile scan.")
                 
-        # Full-width section below columns for visual explanation
-        if face is not None and vis_image is not None and prob is not None:
             st.markdown("---")
             st.markdown("<h3 style='text-align: center; margin-top: 1.5rem; margin-bottom: 1.5rem;'>Self-Attention Map Interpretability Rollout</h3>", unsafe_allow_html=True)
             
@@ -412,99 +426,109 @@ if uploaded_file is not None:
                     use_container_width=True
                 )
             render_heatmap_explanation()
+        else:
+            with col2:
+                st.error("No faces identified in the blueprint. Please provide a clear profile scan.")
                 
     # --- PIPELINE B: VIDEO FILE PROCESSING ---
     elif file_type == "video":
         col1, col2 = st.columns(2)
-        
-        # Save temporary video file safely
-        suffix = '.' + uploaded_file.name.split('.')[-1]
-        tfile = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-        tfile.write(uploaded_file.read())
-        tfile.close()
-        
         with col1:
             st.video(uploaded_file)
             
-        with col2:
-            st.markdown("### Temporal Inspection Progress")
-            progress_bar = st.progress(0.0)
-            status_text = st.empty()
-            attention_slot = st.empty()
-            
-            # Read video file via OpenCV container
-            cap = cv2.VideoCapture(tfile.name)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            
-            # Sample exactly 1 frame per second to speed up evaluation loops
-            sample_rate = max(1, int(fps)) if fps > 0 else 30
-            frame_idx = 0
-            processed_probabilities = []
-            processed_frames_data = []
-            
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret:
-                    break
+        cache_key = f"video_{uploaded_file.name}"
+        if cache_key not in st.session_state:
+            with col2:
+                st.markdown("### Temporal Inspection Progress")
+                progress_bar = st.progress(0.0)
+                status_text = st.empty()
+                attention_slot = st.empty()
                 
-                # Check sample timing index alignment
-                if frame_idx % sample_rate == 0:
-                    # Update progress metric
-                    current_pct = min(1.0, frame_idx / max(1, total_frames))
-                    progress_bar.progress(current_pct)
-                    status_text.text(f"Processing structural integrity matrix... [Frame {frame_idx}/{total_frames}]")
+                # Save temporary video file safely
+                suffix = '.' + uploaded_file.name.split('.')[-1]
+                tfile = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+                tfile.write(uploaded_file.read())
+                tfile.close()
+                
+                # Read video file via OpenCV container
+                cap = cv2.VideoCapture(tfile.name)
+                fps = cap.get(cv2.CAP_PROP_FPS)
+                total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                
+                # Sample exactly 1 frame per second to speed up evaluation loops
+                sample_rate = max(1, int(fps)) if fps > 0 else 30
+                frame_idx = 0
+                processed_probabilities = []
+                processed_frames_data = []
+                
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
                     
-                    # Convert OpenCV Frame layout (BGR) to PIL Image layout (RGB)
-                    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    pil_img = Image.fromarray(rgb_frame)
+                    # Check sample timing index alignment
+                    if frame_idx % sample_rate == 0:
+                        # Update progress metric
+                        current_pct = min(1.0, frame_idx / max(1, total_frames))
+                        progress_bar.progress(current_pct)
+                        status_text.text(f"Processing structural integrity matrix... [Frame {frame_idx}/{total_frames}]")
+                        
+                        # Convert OpenCV Frame layout (BGR) to PIL Image layout (RGB)
+                        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        pil_img = Image.fromarray(rgb_frame)
+                        
+                        face = get_largest_face(pil_img)
+                        if face is not None:
+                            inputs = processor(images=face, return_tensors="pt")
+                            pixel_values = inputs['pixel_values'].to(device)
+                            
+                            heatmap, logits = compute_attention_rollout(pixel_values)
+                            prob = torch.sigmoid(logits).item()
+                            processed_probabilities.append(prob)
+                            
+                            # Generate attention visualization snapshot
+                            vis_image = overlay_heatmap(heatmap, face)
+                            attention_slot.image(vis_image, caption="Live Sequence Attention Heatmap", use_container_width=True)
+                            
+                            # Save frame details
+                            processed_frames_data.append({
+                                "face_crop": face,
+                                "heatmap_vis": vis_image,
+                                "prob": prob
+                            })
                     
-                    face = get_largest_face(pil_img)
-                    if face is not None:
-                        inputs = processor(images=face, return_tensors="pt")
-                        pixel_values = inputs['pixel_values'].to(device)
-                        
-                        heatmap, logits = compute_attention_rollout(pixel_values)
-                        prob = torch.sigmoid(logits).item()
-                        processed_probabilities.append(prob)
-                        
-                        # Generate attention visualization snapshot
-                        vis_image = overlay_heatmap(heatmap, face)
-                        attention_slot.image(vis_image, caption="Live Sequence Attention Heatmap", use_container_width=True)
-                        
-                        # Save frame details
-                        processed_frames_data.append({
-                            "face_crop": face,
-                            "heatmap_vis": vis_image,
-                            "prob": prob
-                        })
+                    frame_idx += 1
+                    
+                cap.release()
                 
-                frame_idx += 1
+                # Cleanup temporary file
+                try:
+                    os.unlink(tfile.name)
+                except Exception as e:
+                    pass
+                    
+                progress_bar.empty()
+                status_text.empty()
+                attention_slot.empty()
                 
-            cap.release()
+                if len(processed_probabilities) > 0:
+                    st.session_state[cache_key] = {
+                        "probabilities": processed_probabilities,
+                        "frames_data": processed_frames_data
+                    }
+                else:
+                    st.session_state[cache_key] = None
+                    
+        cached_data = st.session_state.get(cache_key)
+        if cached_data is not None:
+            processed_probabilities = cached_data["probabilities"]
+            processed_frames_data = cached_data["frames_data"]
+            mean_probability = np.mean(processed_probabilities)
             
-            # Cleanup temporary file
-            try:
-                os.unlink(tfile.name)
-            except Exception as e:
-                pass
-                
-            progress_bar.empty()
-            status_text.empty()
-            attention_slot.empty()
-            
-            # Aggregate structural evaluation outputs
-            if len(processed_probabilities) > 0:
-                mean_probability = np.mean(processed_probabilities)
-                
-                # Render clean analytical dashboard metrics
+            with col2:
                 st.markdown("### Final Sequence Analysis")
                 render_verdict_card(mean_probability)
-            else:
-                st.error("No valid facial profile structures could be isolated anywhere in this video asset.")
                 
-        # Full-width section below columns for visual explanation
-        if len(processed_frames_data) > 0:
             st.markdown("---")
             st.markdown("<h3 style='text-align: center; margin-top: 1.5rem; margin-bottom: 0.5rem;'>Key Frame Interpretability Analysis</h3>", unsafe_allow_html=True)
             st.markdown("<p style='text-align: center; color: #746964; margin-bottom: 1.5rem;'>Use the slider below to step through all analyzed frames and inspect individual model decisions.</p>", unsafe_allow_html=True)
@@ -541,6 +565,9 @@ if uploaded_file is not None:
                     use_container_width=True
                 )
             render_heatmap_explanation()
+        else:
+            with col2:
+                st.error("No valid facial profile structures could be isolated anywhere in this video asset.")
 
 # ----------------- FOOTER -----------------
 st.markdown("""
