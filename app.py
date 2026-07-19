@@ -184,7 +184,7 @@ def load_models():
     #################################################################################################################
 
     # Load our checkpoint weights
-    checkpoint_path = "best_vit_deepfake.pth"
+    checkpoint_path = "best_vit_deepfake_3.pth"
     weights_loaded = False
     if os.path.exists(checkpoint_path):
         model.load_state_dict(torch.load(checkpoint_path, map_location=device))
