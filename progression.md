@@ -85,7 +85,7 @@ This file tracks the current work done and leftover work for the Deepfake Detect
   - Apply the same augmentation pipeline (RandomHorizontalFlip, ColorJitter, Normalize) and validation transforms to both datasets.
 
 - [x] **Step 6.3: Transfer Learning — Fine-tune from Existing Checkpoint**
-  - Load the best existing DFDC checkpoint (`best_vit_deepfake_2.pth`) as the starting weights instead of training from scratch.
+  - Load the best existing DFDC checkpoint (`Model/best_vit_deepfake_2.pth`) as the starting weights instead of training from scratch.
   - This gives the model a head start since it already understands facial structure; it only needs to learn StyleGAN-specific artifacts on top.
   - Freeze the ViT backbone layers initially and only train the classification head for the first 2 epochs, then unfreeze all layers for full fine-tuning.
 
@@ -93,35 +93,43 @@ This file tracks the current work done and leftover work for the Deepfake Detect
   - Use a lower learning rate (e.g., `1e-5`) than the original training run. Note: the low LR is a secondary safeguard — **the primary defense against catastrophic forgetting is the `ConcatDataset` mixed training from Step 6.2**, which ensures the model continuously sees face-swap examples throughout all 10 epochs.
   - Keep `weight_decay = 0.05` and `ACCUMULATION_STEPS = 4` from the v2 configuration.
   - Set `EPOCHS = 10` with `patience = 3` early stopping watching val loss.
-  - Save new checkpoint to `best_vit_deepfake_3.pth` to keep all weight files separate and safe.
+  - Save new checkpoint to `Model/best_vit_deepfake_3.pth` to keep all weight files separate and safe.
 
 - [x] **Step 6.5: Training & Evaluation**
   - Execute the fine-tuning loop, monitoring train loss vs. val loss for overfitting.
   - After training completes, run a full evaluation on the held-out `test/` split (20K images) to get final Accuracy, Precision, Recall, F1-Score, and ROC-AUC.
   - Compare test-set performance against the DFDC-only model to confirm generalization improvement.
 
-- [ ] **Step 6.6: Cross-Dataset Evaluation**
-  - Run `best_vit_deepfake_3.pth` on a sample of the original DFDC `val` set to verify it has not forgotten face-swap detection.
-  - Run `best_vit_deepfake_2.pth` on the StyleGAN `test` set to document the baseline failure rate (expected ~0% detection).
+- [x] **Step 6.6: Cross-Dataset Evaluation**
+  - Run `Model/best_vit_deepfake_3.pth` on a sample of the original DFDC `val` set to verify it has not forgotten face-swap detection.
+  - Run `Model/best_vit_deepfake_2.pth` on the StyleGAN `test` set to document the baseline failure rate (expected ~0% detection).
   - This cross-test confirms whether the fine-tuned model is truly dual-capability.
 
-- [ ] **Step 6.7: Dual-Model Strategy Decision**
+- [x] **Step 6.7: Dual-Model Strategy Decision**
   - Based on cross-dataset results, decide on one of two integration strategies:
-    - **Option A — Single unified model:** If fine-tuned model retains ≥90% DFDC accuracy, deploy only `best_vit_deepfake_3.pth` in `app.py`.
+    - **Option A — Single unified model:** If fine-tuned model retains ≥90% DFDC accuracy, deploy only `Model/best_vit_deepfake_3.pth` in `app.py`.
     - **Option B — Ensemble / routing:** If DFDC performance degrades significantly, run both models in parallel in the app and aggregate their scores.
-  - Document the chosen strategy with justification in this file.
+  - Document the chosen strategy: **Option A (Single Unified Model)** selected as v3 retains 100.4% of v2's DFDC accuracy and achieves 99.25% accuracy on StyleGAN.
 
-- [ ] **Step 6.8: App Integration**
+- [x] **Step 6.8: App Integration**
   - Update `app.py` to load the new model weight(s) based on the strategy chosen in Step 6.7.
   - Update the verdict card and heatmap explanation UI to mention that the system now detects both face-swap deepfakes and AI-generated (StyleGAN-type) faces.
   - Re-test the app manually with known real images, DFDC fakes, and StyleGAN fakes to confirm all three cases produce correct verdicts.
 
-- [ ] **Step 6.9: Notebook Comparison Cell**
-  - Add a final cell in `dfd_ViT_stylegan.ipynb` that runs a side-by-side evaluation of `best_vit_deepfake_2.pth` vs `best_vit_deepfake_3.pth` on both the DFDC val set and the StyleGAN test set, printing a formatted comparison table.
+- [x] **Step 6.9: Notebook Comparison Cell**
+  - Add a final cell in `dfd_ViT_stylegan.ipynb` that runs a side-by-side evaluation of `Model/best_vit_deepfake_2.pth` vs `Model/best_vit_deepfake_3.pth` on both the DFDC val set and the StyleGAN test set, printing a formatted comparison table.
 
 ---
 
 ## Log of Completed Work
+
+### 2026-07-19
+- Successfully fine-tuned the model on a mixed dataset of DFDC and StyleGAN (v3 model).
+- Validated performance:
+  - **DFDC Val:** Accuracy 91.75% (+0.35% improvement over v2), ROC-AUC 0.9752.
+  - **StyleGAN Test:** Accuracy 99.25% (+47.33% improvement over v2), ROC-AUC 0.9995.
+- Created `Model/` directory and moved all 3 checkpoints into it, keeping git tracking intact.
+- Updated `app.py` and `dfd_ViT_stylegan.ipynb` to refer to the new paths and updated `.gitattributes` for LFS tracking.
 
 ### 2026-07-12
 - Started the project setup.

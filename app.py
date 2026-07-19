@@ -184,7 +184,7 @@ def load_models():
     #################################################################################################################
 
     # Load our checkpoint weights
-    checkpoint_path = "best_vit_deepfake_3.pth"
+    checkpoint_path = "Model/best_vit_deepfake_3.pth"
     weights_loaded = False
     if os.path.exists(checkpoint_path):
         model.load_state_dict(torch.load(checkpoint_path, map_location=device))
@@ -209,7 +209,7 @@ model, processor, detector, device, weights_loaded = load_models()
 # ----------------- HEADER AREA -----------------
 
 st.markdown('<div class="title-text">Vision Transformer Deepfake Detector</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle-text">Harnessing Self-Attention mechanics to spot structural facial manipulations and blending seams.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle-text">Dual-Capability Detector: Detecting Face-Swap Manipulations (DFDC) & Synthetic GAN Faces (StyleGAN) using explainable Self-Attention rollout mapping.</div>', unsafe_allow_html=True)
 
 # ----------------- CORE LOGIC FUNCTIONS -----------------
 

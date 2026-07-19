@@ -1,3 +1,8 @@
 best_vit_deepfake.pth filter=lfs diff=lfs merge=lfs -text
 best_vit_deepfake_2.pth filter=lfs diff=lfs merge=lfs -text
 best_vit_deepfake_3.pth filter=lfs diff=lfs merge=lfs -text
+Model/best_vit_deepfake.pth filter=lfs diff=lfs merge=lfs -text
+Model/best_vit_deepfake_2.pth filter=lfs diff=lfs merge=lfs -text
+Model/best_vit_deepfake_3.pth filter=lfs diff=lfs merge=lfs -text
+Model/*.pth filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
