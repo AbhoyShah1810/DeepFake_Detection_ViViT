@@ -7,9 +7,9 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 ## Overall Progress Summary
 
 - **Total Tasks:** 30
-- **Completed:** 18
+- **Completed:** 30
 - **In Progress:** 0
-- **Leftover (Not Started):** 12
+- **Leftover (Not Started):** 0
 
 ---
 
@@ -20,7 +20,7 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 - [x] **Step 1.2:** Write a balancing script to isolate an equal count of REAL and FAKE video IDs.
 - [x] **Step 1.3:** Develop the OpenCV video ingestion pipeline to sample 15 frames per target video.
 - [x] **Step 1.4:** Implement MTCNN for facial detection on the sampled frames.
-- [x] **Step 1.5:** Apply the bounding box expansion logic (margin addition) and save the cropped faces as `.jpg` files organized into `train/REAL`, `train/FAKE`, `val/REAL`, and `val/FAKE` directories based on the Video-ID split rule.
+- [x] **Step 1.5:** Apply the bounding box expansion logic (margin addition) and save the cropped faces as `.jpg` files organized into `dataset/processed_faces_v2/train/REAL`, `dataset/processed_faces_v2/train/FAKE`, `dataset/processed_faces_v2/val/REAL`, and `dataset/processed_faces_v2/val/FAKE` directories based on the Video-ID split rule.
 
 ### Phase 2: Model Setup & Hyperparameter Tuning
 - [x] **Step 2.1:** Initialize the Hugging Face `transformers` library and load the pre-trained base ViT.
@@ -41,16 +41,16 @@ This file tracks the current work done and leftover work for the Deepfake Detect
 - [x] **Step 4.3:** Develop the logic for video uploads (extracting frames, running batched inference, aggregating the final confidence score).
 - [x] **Step 4.4:** (Bonus) Implement Attention Rollout visualization to generate a heatmap indicating which parts of the face the ViT focused on to make its decision.
 
-### Phase 5: Final Packaging
-- [ ] **Step 5.1:** Clean and document the source code.
-- [ ] **Step 5.2:** Prepare the final Presentation and PDF Report mapping the workflow.
-- [ ] **Step 5.3:** Push all assets to a structured GitHub repository.
+### Phase 5: Final Packaging & Consolidation
+- [x] **Step 5.1:** Clean and document the source code (merged notebooks and standardized paths).
+- [x] **Step 5.2:** Prepare the final Presentation and PDF Report mapping the workflow.
+- [x] **Step 5.3:** Push all assets to a structured GitHub repository.
 
 ---
 
 ### Phase 6: AI-Generated Face Detection Extension (StyleGAN Dataset)
 
-> **Context:** The existing ViT model was trained exclusively on DFDC (face-swap deepfakes) and therefore fails to detect AI-generated faces (e.g., StyleGAN, Midjourney, Stable Diffusion). This phase extends the model's detection capability to cover fully AI-synthesized faces using the **140k Real and Fake Faces** dataset (`Fake_face_detection_with_Keras/real_vs_fake/real-vs-fake/`).
+> **Context:** The existing ViT model was trained exclusively on DFDC (face-swap deepfakes) and therefore fails to detect AI-generated faces (e.g., StyleGAN, Midjourney, Stable Diffusion). This phase extends the model's detection capability to cover fully AI-synthesized faces using the **140k Real and Fake Faces** dataset (`dataset/Fake_face_detection_with_Keras/real_vs_fake/real-vs-fake/`).
 >
 > **Dataset profile:**
 > - Source: FFHQ (real) + StyleGAN (fake)
@@ -65,32 +65,19 @@ This file tracks the current work done and leftover work for the Deepfake Detect
   - Confirm image dimensions (256×256 RGB) and ensure the ViT processor's resize transform will correctly **downscale** them to 224×224 (256→224 is a downscale, not an upscale — no MTCNN crop needed since images are pre-cropped).
   - Check for any corrupted or incomplete image files across all splits before training.
 
-- [x] **Step 6.2: Separate Notebook for Mixed-Dataset Fine-tuning**
-  - Create a new Jupyter notebook (e.g., `dfd_ViT_stylegan.ipynb`) dedicated to StyleGAN fine-tuning.
-  - **Explicitly set the PyTorch device to `mps`** at the top of the notebook to ensure M2 GPU acceleration is used. Do not rely on carry-over from previous scripts:
-    ```python
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    ```
-  - **Implement a mixed (concatenated) dataset** using `ConcatDataset` to train on both the original DFDC data and the new StyleGAN dataset simultaneously. Training on StyleGAN data alone will cause catastrophic forgetting of face-swap features regardless of learning rate:
-    ```python
-    from torch.utils.data import ConcatDataset
-
-    dfdc_train   = ImageFolder(DFDC_TRAIN_ROOT,     transform=train_transform)
-    stylegan_train = ImageFolder(STYLEGAN_TRAIN_ROOT, transform=train_transform)
-
-    # Subsample DFDC to ~100K to keep class distribution balanced with StyleGAN
-    combined_train = ConcatDataset([dfdc_train_subset, stylegan_train])
-    ```
+- [x] **Step 6.2: Consolidate Mixed-Dataset Fine-tuning**
+  - Consolidate all StyleGAN fine-tuning cells directly into the main `dfd_ViT.ipynb` notebook to maintain a single cohesive, linear pipeline.
+  - **Explicitly set the PyTorch device to `mps`** at the top of the notebook to ensure M2 GPU acceleration is used.
+  - **Implement a mixed (concatenated) dataset** using `ConcatDataset` to train on both the original DFDC data and the new StyleGAN dataset simultaneously.
   - For the **validation split**, keep DFDC val and StyleGAN val as separate loaders so per-dataset metrics remain interpretable.
   - Apply the same augmentation pipeline (RandomHorizontalFlip, ColorJitter, Normalize) and validation transforms to both datasets.
 
 - [x] **Step 6.3: Transfer Learning — Fine-tune from Existing Checkpoint**
   - Load the best existing DFDC checkpoint (`Model/best_vit_deepfake_2.pth`) as the starting weights instead of training from scratch.
-  - This gives the model a head start since it already understands facial structure; it only needs to learn StyleGAN-specific artifacts on top.
   - Freeze the ViT backbone layers initially and only train the classification head for the first 2 epochs, then unfreeze all layers for full fine-tuning.
 
 - [x] **Step 6.4: Hyperparameter Configuration for Fine-tuning**
-  - Use a lower learning rate (e.g., `1e-5`) than the original training run. Note: the low LR is a secondary safeguard — **the primary defense against catastrophic forgetting is the `ConcatDataset` mixed training from Step 6.2**, which ensures the model continuously sees face-swap examples throughout all 10 epochs.
+  - Use a lower learning rate (e.g., `1e-5`) than the original training run.
   - Keep `weight_decay = 0.05` and `ACCUMULATION_STEPS = 4` from the v2 configuration.
   - Set `EPOCHS = 10` with `patience = 3` early stopping watching val loss.
   - Save new checkpoint to `Model/best_vit_deepfake_3.pth` to keep all weight files separate and safe.
@@ -106,10 +93,7 @@ This file tracks the current work done and leftover work for the Deepfake Detect
   - This cross-test confirms whether the fine-tuned model is truly dual-capability.
 
 - [x] **Step 6.7: Dual-Model Strategy Decision**
-  - Based on cross-dataset results, decide on one of two integration strategies:
-    - **Option A — Single unified model:** If fine-tuned model retains ≥90% DFDC accuracy, deploy only `Model/best_vit_deepfake_3.pth` in `app.py`.
-    - **Option B — Ensemble / routing:** If DFDC performance degrades significantly, run both models in parallel in the app and aggregate their scores.
-  - Document the chosen strategy: **Option A (Single Unified Model)** selected as v3 retains 100.4% of v2's DFDC accuracy and achieves 99.25% accuracy on StyleGAN.
+  - Decided on strategy: **Option A (Single Unified Model)** selected as v3 retains 100.4% of v2's DFDC accuracy and achieves 99.25% accuracy on StyleGAN.
 
 - [x] **Step 6.8: App Integration**
   - Update `app.py` to load the new model weight(s) based on the strategy chosen in Step 6.7.
@@ -117,13 +101,15 @@ This file tracks the current work done and leftover work for the Deepfake Detect
   - Re-test the app manually with known real images, DFDC fakes, and StyleGAN fakes to confirm all three cases produce correct verdicts.
 
 - [x] **Step 6.9: Notebook Comparison Cell**
-  - Add a final cell in `dfd_ViT_stylegan.ipynb` that runs a side-by-side evaluation of `Model/best_vit_deepfake_2.pth` vs `Model/best_vit_deepfake_3.pth` on both the DFDC val set and the StyleGAN test set, printing a formatted comparison table.
+  - Add a final cell in `dfd_ViT.ipynb` that runs a side-by-side evaluation of `Model/best_vit_deepfake_2.pth` vs `Model/best_vit_deepfake_3.pth` on both the DFDC val set and the StyleGAN test set, printing a formatted comparison table.
 
 ---
 
 ## Log of Completed Work
 
 ### 2026-07-19
+- Consolidate all Phase 6 training, validation, evaluation, and side-by-side model comparison code directly into `dfd_ViT.ipynb`, and removed the separate `dfd_ViT_stylegan.ipynb` to clean up the repository.
+- Reorganized all dataset directories to exist under a unified root-level `dataset/` folder.
 - Successfully fine-tuned the model on a mixed dataset of DFDC and StyleGAN (v3 model).
 - Validated performance:
   - **DFDC Val:** Accuracy 91.75% (+0.35% improvement over v2), ROC-AUC 0.9752.

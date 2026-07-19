@@ -1,8 +1,10 @@
 /*
 !.gitignore
 !dfd_ViT.ipynb
-!DeepFake_Report.md
-!progression.md
 !requirements.txt
 !app.py
-!dfd_ViT_stylegan.ipynb
+!.gitattributes
+!Model/
+!Model/*
+!documentation/
+!documentation/*

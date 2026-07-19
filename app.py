@@ -20,16 +20,27 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600&display=swap');
     
-    /* Overall Page Background & Styling - Soothing Warm Cream */
+    /* Overall Page Background & Styling - Soothing Muted Warm Tone */
     .stApp {
-        background-color: #F6EFEA !important;
-        color: #3C3633 !important;
+        background-color: #F8F5F2 !important;
+        color: #2A2421 !important;
+    }
+    
+    /* Ensure high contrast for all standard readable text */
+    .stApp p, .stApp li {
+        color: #2A2421 !important;
+        font-family: 'Inter', sans-serif !important;
+        line-height: 1.6;
+    }
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
+        color: #1A1412 !important;
+        font-family: 'Outfit', sans-serif !important;
     }
     
     /* Header Area */
     .title-text {
         font-family: 'Outfit', sans-serif;
-        color: #3C3633;
+        color: #1A1412;
         font-weight: 800;
         font-size: 2.8rem;
         margin-bottom: 0.2rem;
@@ -38,18 +49,17 @@ st.markdown("""
     }
     .subtitle-text {
         font-family: 'Inter', sans-serif;
-        color: #746964;
+        color: #4A3F39;
         font-size: 1.05rem;
         margin-bottom: 2.5rem;
-        font-weight: 400;
-        opacity: 0.9;
+        font-weight: 500;
         text-align: center;
     }
     
     /* Premium Soothing Muted Cards */
     .metric-card {
         background: #FFFFFF !important;
-        border: 1px solid #EAE0DA !important;
+        border: 1px solid #E5DEC9 !important;
         border-radius: 28px;
         padding: 1.8rem;
         box-shadow: 0 10px 45px rgba(60, 54, 51, 0.03) !important;
@@ -68,11 +78,11 @@ st.markdown("""
     }
     
     .card-label {
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #746964;
-        font-weight: 600;
+        color: #5A4F49;
+        font-weight: 700;
     }
     
     .card-value {
@@ -95,18 +105,18 @@ st.markdown("""
         text-align: center;
         margin-top: 5rem;
         padding: 2.5rem 0;
-        border-top: 1px solid #EAE0DA;
+        border-top: 1px solid #E5DCD6;
         font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
-        color: #746964;
-        font-weight: 400;
+        font-size: 0.95rem;
+        color: #3C332E !important;
+        font-weight: 500;
         letter-spacing: 0.5px;
     }
     
     /* File Uploader Container */
     .stFileUploader {
         background-color: #FFFFFF !important;
-        border: 2px dashed #D3C4B9 !important;
+        border: 2px dashed #C5BCB6 !important;
         border-radius: 28px !important;
         padding: 1.5rem !important;
         box-shadow: 0 8px 30px rgba(60, 54, 51, 0.01) !important;
@@ -114,15 +124,15 @@ st.markdown("""
     
     /* Pill buttons for Streamlit */
     div.stButton > button {
-        background-color: #F39F5A !important; /* Soft Peach */
-        color: #3C3633 !important;
+        background-color: #E89B5F !important; /* Muted Soft Peach */
+        color: #1A1412 !important;
         font-family: 'Outfit', sans-serif !important;
         font-weight: 600 !important;
         font-size: 1.05rem !important;
-        border: 1px solid #E0D4CC !important;
+        border: 1px solid #DFD5CD !important;
         border-radius: 30px !important;
         padding: 0.6rem 2.5rem !important;
-        box-shadow: 0 4px 14px rgba(243, 159, 90, 0.15) !important;
+        box-shadow: 0 4px 14px rgba(232, 155, 95, 0.15) !important;
         transition: all 0.2s ease !important;
         width: 100% !important;
         max-width: 400px !important;
@@ -130,11 +140,11 @@ st.markdown("""
         display: block !important;
     }
     div.stButton > button:hover {
-        background-color: #E8BCB9 !important; /* Dusty Pink */
-        color: #3C3633 !important;
+        background-color: #E0A69D !important; /* Dusty Rose Pink */
+        color: #1A1412 !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(232, 188, 185, 0.25) !important;
-        border-color: #D3C4B9 !important;
+        box-shadow: 0 6px 20px rgba(224, 166, 157, 0.25) !important;
+        border-color: #C5BCB6 !important;
     }
 </style>
 
@@ -200,6 +210,19 @@ def load_models():
     detector = MTCNN(keep_all=True, device='cpu')
     
     return model, processor, detector, device, weights_loaded
+
+def render_heatmap_explanation():
+    """
+    Renders a clean expander explaining how the attention heatmap highlights classification influences.
+    """
+    with st.expander("💡 How to Interpret the Self-Attention Map", expanded=True):
+        st.markdown("""
+        The **Vision Transformer (ViT)** processes face structures in grid-like patches. The self-attention map rolls out how much focus the model placed on each region to confirm its verdict:
+        
+        *   🔴 **Red & Warm Hotspots:** Indicate regions of **high influence**. These are the facial features, contours, or structural anomalies (like blending lines around the eyes, jaw, or nose) that the model focused on to make its decision.
+        *   🔵 **Blue & Cool Regions:** Represent areas of **low influence** that were largely ignored by the classification head.
+        *   👁️ **Spotting Deepfakes:** Genuine videos show uniform attention on key natural facial details. Deepfakes generate localized high-attention spikes around artificial blending seams, skin-color mismatches, and boundary contours where overlays were spliced.
+        """)
 
 # Load components
 model, processor, detector, device, weights_loaded = load_models()
@@ -312,32 +335,6 @@ def render_verdict_card(prob):
     <div class="metric-card {accent_class}">
         <div class="card-label">{label_text}</div>
         <div class="card-value {color_class}">{confidence*100:.2f}% Confidence</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-def render_heatmap_explanation():
-    """
-    Renders a clean card explaining how the attention heatmap highlights classification influences.
-    """
-    st.markdown("""
-    <div style="background-color: #FFFFFF; border: 1px solid #EAE0DA; border-radius: 20px; padding: 1.5rem; margin-top: 1.5rem; box-shadow: 0 4px 20px rgba(60, 54, 51, 0.02);">
-        <h4 style="font-family: 'Outfit', sans-serif; color: #3C3633; margin-top: 0; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-            💡 Understanding the Attention Heatmap
-        </h4>
-        <p style="font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #5C524D; line-height: 1.5; margin-bottom: 0.8rem;">
-            The Vision Transformer (ViT) processes face structures in grid-like patches. The attention map rolls out how much focus the model placed on each region when confirming its verdict:
-        </p>
-        <ul style="font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #5C524D; line-height: 1.5; margin-bottom: 0; padding-left: 1.2rem;">
-            <li style="margin-bottom: 0.4rem;">
-                <strong style="color: #C62828;">Red & Warm Hotspots:</strong> Indicate regions of <strong>high influence</strong>. These are the facial features, contours, or structural anomalies (like blending lines around the eyes, jaw, or nose) that the model focused on to make its decision.
-            </li>
-            <li style="margin-bottom: 0.4rem;">
-                <strong style="color: #1E6B27;">Blue & Cool Regions:</strong> Represent areas of <strong>low influence</strong>. These portions of the image were largely ignored by the classification head.
-            </li>
-            <li>
-                <strong>Spotting Deepfakes:</strong> Genuine videos tend to show uniform attention concentrated on key natural facial details (eyes, nose, mouth movements). Deepfakes often generate localized high-attention spikes around artificial blending seams, skin-color mismatches, and boundary contours where facial overlays were spliced.
-            </li>
-        </ul>
     </div>
     """, unsafe_allow_html=True)
 
