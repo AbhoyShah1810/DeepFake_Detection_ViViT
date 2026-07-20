@@ -143,41 +143,63 @@ st.markdown("""
         border-radius: 12px !important;
     }
     
-    /* Expander Container, Summary Header, and Text Visibility Fixes */
+    /* Uploaded File Item (Pill/Card) Fixes */
+    [data-testid="stFileUploaderFile"],
+    [data-testid="stFileUploaderFileData"],
+    [data-testid="stFileUploaderFileName"],
+    div[data-testid="stFileUploader"] ul,
+    div[data-testid="stFileUploader"] li {
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E5DCD6 !important;
+        border-radius: 14px !important;
+        color: #1A1412 !important;
+    }
+
+    [data-testid="stFileUploaderFile"] *,
+    [data-testid="stFileUploaderFileData"] *,
+    [data-testid="stFileUploaderFileName"] * {
+        color: #1A1412 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    [data-testid="stFileUploaderFile"] svg,
+    [data-testid="stFileUploaderFile"] button {
+        fill: #1A1412 !important;
+        color: #1A1412 !important;
+    }
+    
+    /* Expander Container & Header Overlap Fixes */
     div[data-testid="stExpander"] {
         background-color: #FFFFFF !important;
         background: #FFFFFF !important;
         border: 1px solid #E5DCD6 !important;
         border-radius: 20px !important;
         box-shadow: 0 4px 20px rgba(60, 54, 51, 0.02) !important;
+        overflow: hidden !important;
     }
     
-    div[data-testid="stExpander"] summary, 
-    div[data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+    div[data-testid="stExpander"] summary {
         background-color: #FFFFFF !important;
         background: #FFFFFF !important;
         color: #1A1412 !important;
-        border-radius: 20px 20px 0 0 !important;
+        border-radius: 20px !important;
+        padding: 0.8rem 1.2rem !important;
     }
 
-    div[data-testid="stExpander"] summary *, 
-    div[data-testid="stExpander"] p, 
-    div[data-testid="stExpander"] span, 
-    div[data-testid="stExpander"] svg {
+    div[data-testid="stExpander"] summary p,
+    div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p {
         color: #1A1412 !important;
-        fill: #1A1412 !important;
         font-family: 'Outfit', sans-serif !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem !important;
+        margin: 0 !important;
     }
 
     div[data-testid="stExpander"] summary:hover, 
     div[data-testid="stExpander"] summary:focus {
         background-color: #F8F5F2 !important;
         background: #F8F5F2 !important;
-        color: #1A1412 !important;
-    }
-    
-    div[data-testid="stExpander"] summary:hover * {
         color: #1A1412 !important;
     }
     
