@@ -113,13 +113,72 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
-    /* File Uploader Container */
-    .stFileUploader {
+    /* File Uploader Container & Dropzone Fixes */
+    [data-testid="stFileUploader"], 
+    [data-testid="stFileUploaderDropzone"], 
+    section[data-testid="stFileUploaderDropzone"], 
+    div[data-testid="stFileUploader"] > div {
         background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        border-radius: 24px !important;
+        color: #1A1412 !important;
+    }
+    
+    [data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #C5BCB6 !important;
-        border-radius: 28px !important;
-        padding: 1.5rem !important;
-        box-shadow: 0 8px 30px rgba(60, 54, 51, 0.01) !important;
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+    }
+    
+    [data-testid="stFileUploaderDropzone"] *, 
+    [data-testid="stFileUploader"] *, 
+    section[data-testid="stFileUploaderDropzone"] * {
+        color: #1A1412 !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button {
+        background-color: #F5EBE6 !important;
+        color: #1A1412 !important;
+        border: 1px solid #D8CAC1 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Expander Container, Summary Header, and Text Visibility Fixes */
+    div[data-testid="stExpander"] {
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E5DCD6 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 4px 20px rgba(60, 54, 51, 0.02) !important;
+    }
+    
+    div[data-testid="stExpander"] summary, 
+    div[data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+        background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
+        color: #1A1412 !important;
+        border-radius: 20px 20px 0 0 !important;
+    }
+
+    div[data-testid="stExpander"] summary *, 
+    div[data-testid="stExpander"] p, 
+    div[data-testid="stExpander"] span, 
+    div[data-testid="stExpander"] svg {
+        color: #1A1412 !important;
+        fill: #1A1412 !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+    }
+
+    div[data-testid="stExpander"] summary:hover, 
+    div[data-testid="stExpander"] summary:focus {
+        background-color: #F8F5F2 !important;
+        background: #F8F5F2 !important;
+        color: #1A1412 !important;
+    }
+    
+    div[data-testid="stExpander"] summary:hover * {
+        color: #1A1412 !important;
     }
     
     /* Pill buttons for Streamlit */
