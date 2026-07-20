@@ -8,3 +8,7 @@
 !Model/*
 !documentation/
 !documentation/*
+!dataset_archives/
+!dataset_archives/*
+!*.zip
+
