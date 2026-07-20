@@ -9,4 +9,6 @@ numpy
 matplotlib
 seaborn
 tqdm
+opencv-python-headless
+
 
