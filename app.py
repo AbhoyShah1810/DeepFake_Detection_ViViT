@@ -113,6 +113,15 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
+    /* File Uploader Container */
+    .stFileUploader {
+        background-color: #FFFFFF !important;
+        border: 2px dashed #C5BCB6 !important;
+        border-radius: 28px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 8px 30px rgba(60, 54, 51, 0.01) !important;
+    }
+    
     /* Pill buttons for Streamlit */
     div.stButton > button {
         background-color: #E89B5F !important; /* Muted Soft Peach */
@@ -333,6 +342,22 @@ def render_verdict_card(prob):
 # Universal media uploader accepting images or video assets
 uploaded_file = st.file_uploader("Upload Image or Video Blueprint...", type=["jpg", "jpeg", "png", "mp4", "avi", "mov"])
 
+# Render the custom Upload Card theme on the main page when no file is uploaded:
+if uploaded_file is None:
+    st.markdown("""
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem; background: #FFFFFF; border-radius: 32px; border: 1px solid #EAE0DA; box-shadow: 0 10px 45px rgba(60, 54, 51, 0.03); max-width: 420px; margin: 2rem auto 1rem auto; text-align: center;">
+        <svg width="120" height="90" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 1.5rem;">
+            <!-- Orange folder body -->
+            <path d="M10 25C10 20.5817 13.5817 17 18 17H45L55 27H102C106.418 27 110 30.5817 110 35V82C110 86.4183 106.418 90 102 90H18C13.5817 90 10 86.4183 10 82V25Z" fill="#FFAA88" stroke="#3C3633" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M18 27H102" stroke="#3C3633" stroke-width="3"/>
+            <path d="M22 35C22 33.8954 22.8954 33 24 33H40C41.1046 33 42 33.8954 42 35V45H22V35Z" fill="white" opacity="0.4"/>
+            <!-- Arrow upload indicator -->
+            <path d="M60 70V50M60 50L53 57M60 50L67 57" stroke="#3C3633" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 600; color: #3C3633; margin-bottom: 0.4rem;">Upload from device</div>
+        <div style="font-size: 0.85rem; color: #746964; line-height: 1.4;">Drag and drop file here<br>Max file size up to 20Mb</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 if uploaded_file is not None:
     file_type = uploaded_file.type.split('/')[0]
