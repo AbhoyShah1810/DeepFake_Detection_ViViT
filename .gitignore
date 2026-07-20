@@ -4,6 +4,7 @@
 !requirements.txt
 !app.py
 !.gitattributes
+!.lfsconfig
 !Model/
 !Model/*
 !documentation/
@@ -11,4 +12,5 @@
 !dataset_archives/
 !dataset_archives/*
 !*.zip
+
 
