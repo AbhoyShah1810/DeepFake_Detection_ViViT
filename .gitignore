@@ -12,5 +12,6 @@
 !dataset_archives/
 !dataset_archives/*
 !*.zip
+!README.md
 
 
